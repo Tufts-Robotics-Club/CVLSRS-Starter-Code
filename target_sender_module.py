@@ -15,6 +15,10 @@ PORT = os.environ.get("LOCAL_PORT", 11295)
 
 FREQUENCY = 1
 
+TARGET_PAIRS = [ # color, shape
+    (3, 3), (0, 0), (1, 2), (3, 1), (3, 0), (0, 2), (0, 3), (2, 1), (1, 1), (3, 2)
+]
+
 
 class TargetSenderModule(rm.ProtoModule):
     # sets up the module (subscriptions, connection to server, etc)
@@ -29,10 +33,12 @@ class TargetSenderModule(rm.ProtoModule):
     # runs every 1 / FREQUENCY seconds
     def tick(self):
         input().lower()
-
+        
+        target = random.choice(TARGET_PAIRS)
         msg = Target()
-        msg.shape = random.randint(0, 3)
-        msg.color = random.randint(0, 3)
+        msg.shape = target[1]
+        msg.color = target[0]
+
 
         self.write(msg.SerializeToString(), MsgType.TARGET)
         print('sent', msg)

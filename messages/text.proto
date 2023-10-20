@@ -1,0 +1,7 @@
+syntax = "proto2";
+
+message Target {
+
+    required string words = 1;
+
+  }

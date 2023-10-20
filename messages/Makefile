@@ -3,3 +3,4 @@ protobuf: target.proto rotationCommand.proto tiltCommand.proto
 	protoc -I=./ --python_out=./ ./target.proto
 	protoc -I=./ --python_out=./ ./rotationCommand.proto
 	protoc -I=./ --python_out=./ ./tiltCommand.proto
+	protoc -I=./ --python_out=./ ./text.proto
