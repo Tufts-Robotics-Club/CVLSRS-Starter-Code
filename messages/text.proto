@@ -1,6 +1,6 @@
 syntax = "proto2";
 
-message Target {
+message Text {
 
     required string words = 1;
 

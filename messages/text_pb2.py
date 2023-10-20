@@ -14,21 +14,21 @@ _sym_db = _symbol_database.Default()
 
 
 
-DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\ntext.proto\"\x17\n\x06Target\x12\r\n\x05words\x18\x01 \x02(\t')
+DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\ntext.proto\"\x15\n\x04Text\x12\r\n\x05words\x18\x01 \x02(\t')
 
 
 
-_TARGET = DESCRIPTOR.message_types_by_name['Target']
-Target = _reflection.GeneratedProtocolMessageType('Target', (_message.Message,), {
-  'DESCRIPTOR' : _TARGET,
+_TEXT = DESCRIPTOR.message_types_by_name['Text']
+Text = _reflection.GeneratedProtocolMessageType('Text', (_message.Message,), {
+  'DESCRIPTOR' : _TEXT,
   '__module__' : 'text_pb2'
-  # @@protoc_insertion_point(class_scope:Target)
+  # @@protoc_insertion_point(class_scope:Text)
   })
-_sym_db.RegisterMessage(Target)
+_sym_db.RegisterMessage(Text)
 
 if _descriptor._USE_C_DESCRIPTORS == False:
 
   DESCRIPTOR._options = None
-  _TARGET._serialized_start=14
-  _TARGET._serialized_end=37
+  _TEXT._serialized_start=14
+  _TEXT._serialized_end=35
 # @@protoc_insertion_point(module_scope)
