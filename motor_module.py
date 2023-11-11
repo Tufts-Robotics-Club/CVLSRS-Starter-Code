@@ -24,11 +24,14 @@ ADDRESS = os.environ.get("LOCAL_ADDRESS","localhost")
 PORT = os.environ.get("LOCAL_PORT", 11295)
 
 FREQUENCY = 60
-MAX_ANGLE= 60
+TICKS_PER_ROTATION = 979
+TICKS_PER_DEGREE = TICKS_PER_ROTATION / 360
 
-SERVO_PIN = 25
-DC_PINS = (5, 12)
-ENCODER_PINS = (17, 18)
+TILT_LIMITS = (-0.65, 0.65)
+
+SERVO_PIN = 4
+DC_PINS = (17, 18)
+ENCODER_PINS = (22, 23)
 
 
 class MotorModule(rm.ProtoModule):
@@ -43,7 +46,7 @@ class MotorModule(rm.ProtoModule):
         self.encoder = RotaryEncoder(*ENCODER_PINS, max_steps=0)
 
         # setting up PID controller
-        self.pid = PID(0.075, 0, 0)
+        self.pid = PID(0.025, 0, 0)
         self.pid.sample_time = 0.01
         self.pid.output_limits = (-1.0, 1.0)
         self.pid.setpoint = 0
@@ -52,13 +55,8 @@ class MotorModule(rm.ProtoModule):
     def msg_received(self, msg, msg_type):
         if msg_type == MsgType.ROTATION_COMMAND:
             print('received rotation command', msg)
-            # setting new target position
-            target_pos = round(msg.position * MAX_ANGLE)
-            if target_pos > MAX_ANGLE:
-                target_pos = MAX_ANGLE
-            elif target_pos < -MAX_ANGLE:
-                target_pos = -MAX_ANGLE
-            self.pid.setpoint = target_pos
+            delta_pos = round(TICKS_PER_DEGREE * msg.position)
+            self.pid.setpoint = self.pid.setpoint + delta_pos
 
             # setting new speed cap
             max_speed = min(1.0, abs(msg.max_speed))
@@ -66,7 +64,8 @@ class MotorModule(rm.ProtoModule):
 
         elif msg_type == MsgType.TILT_COMMAND:
             print('received tilt command', msg)
-            self._tilt(msg.position)
+
+            self._tilt(self._tilt_pos_transform(msg.position))
 
     # runs every 1 / FREQUENCY seconds
     def tick(self):
@@ -81,7 +80,7 @@ class MotorModule(rm.ProtoModule):
         
         # driving rotation motor w/ given speed and direction
         drive_func(abs(v))
-    
+
     def _tilt(self, desired_position):
         if desired_position < -1:
             desired_position = -1
@@ -89,6 +88,14 @@ class MotorModule(rm.ProtoModule):
             desired_position = 1
 
         self.tilt_motor.value = desired_position
+    
+    def _tilt_pos_transform(self, desired_pos):
+        desired_pos += 1.0
+        desired_pos /= 2.0
+        desired_pos *= (TILT_LIMITS[1] - TILT_LIMITS[0])
+        desired_pos += TILT_LIMITS[0]
+
+        return min(max(desired_pos, TILT_LIMITS[0]), TILT_LIMITS[1])
         
 
 def main():

@@ -1,6 +1,6 @@
 # CVLSRS Competition Starter Code
 
-Welcome to the official starter code for the 2022 CVLSRS (Computer Vision Laser Space Robot Satellite) Competition!
+Welcome to the official starter code for the 2023 CVLSRS (Computer Vision Laser Space Robot Satellite) Competition!
 
 This code is implemented using Robomodules, a Python framework that models a robot as a set of isolated modules that pass messages between each other over a server. In genral, modules publish messages of specified types to the server, which are then picked up and processed by the modules subscribed to those message types. For more information on Robomodules, see the [official documentation](https://github.com/HarvardURC/robomodules#robomodules).
 
@@ -9,8 +9,9 @@ This code is implemented using Robomodules, a Python framework that models a rob
 This starter code contains three message types, defined as follows:
 
 * [Target](messages/target.proto): During the competition, your code will accept Target messages from the game server. Each target message contains two enum values: a shape and a color.
-* [RotationCommand](messages/rotationCommand.proto): These messages can be used to control the rotation motor on the robot using the given motor module. Each rotation command contains two decimal values: a desired position, which should be between -1.0 and 1.0, where 1.0 would be 180 degrees clockwise from the starting position and -1.0 is 180 degress counterclockwise, and a maximum speed (between 0 and 1.0) the robot can reach while getting to that position.
-* [TiltCommand](messages/tiltCommand.proto): These control the tilt motor on the robot using the given motor module. Each tilt command contains a desired position, which, similarly to the rotation position, should be a decimal between -1.0 and 1.0. Maximum speed is not controllable on the tilt motor.
+* [RotationCommand](messages/rotationCommand.proto): These messages can be used to control the rotation motor on the robot using the given motor module. Each rotation command contains two decimal values: a desired amount of degrees to move clockwise from the current position, and a maximum speed (between 0 and 1.0) the robot can reach while getting to that position.
+* [TiltCommand](messages/tiltCommand.proto): These control the tilt motor on the robot using the given motor module. Each tilt command contains a desired position, which should be a decimal between -1.0 and 1.0, where -1.0 is the maximum downward tilt and 1.0 is the maximum upward tilt. Maximum speed is not controllable on the tilt motor.
+* [LaserCommand](messages/laserCommand.proto): These control the laser. Each laser command contains one decimal value, representing the number of seconds for which the laser should be switched on.
 
 Custom message types can be added via the following procedure:
 
@@ -25,17 +26,18 @@ This starter code comes with three modules:
 
 * [Comms Module](comms_module.py): Picks up Target messages from a remote game server and forwards them to the local server that your own modules will run on.
 * [Target Sender Module](target_sender_module.py): For use in testing; generates and sends randomized Target messages over your local robomodules server (as an alternative to picking them up from a separate game server).
-* [Motor Module](motor_module.py): Drives rotation and tilt motors to specified positions based on RotationCommand and TiltCommand messages.
+* [Motor Module](motor_module.py): Drives rotation and tilt motors to specified positions based on RotationCommand and TiltCommand messages. Note that this module runs best using the pigpio GPIO pin factory, rather than the default one. To change this, run `export GPIOZERO_PIN_FACTORY=pigpio` and `sudo pigpiod` in the command line before starting the module.
+* [Laser Module](motor_module.py): Turns the laser on and off based on LaserCommand messages.
 
 Further modules (for catching and handling these target messages, image processing, sending messages to the other modules based on that image processing, etc) will be designed and implemented by you! For more information on how to create modules, see the [official Robomodules documentation](https://github.com/HarvardURC/robomodules#mocksensormodulepy), as well as the [blank module template](blank_module.py) provided in this code!
 
 ## Other Files
 
+`run_modules.sh` can be used to quickly start up the server, motor module, and laser module. You can run it with `./run_modules.sh`. If you get a `Permission denied` error, try running `chmod +x run_modules.sh`, and then running the file again. (If you're interested in what the `chmod` command means, you can read more about Linux file permissions [here](https://linuxize.com/post/chmod-command-in-linux/)).
+
 This starter code includes a definiton for the [CameraFeed](camera_reader.py) class, which can be used to read the most recent frame from either a remote or local camera feed. To use it in your code, simply create a `CameraFeed` object with the `source` parameter set to either a URI of a remote camera stream (such as `'tcp://192.168.0.102:9000'`), or the index of a local camera (probably `0`, unless your Pi has multiple cameras hoooked up to it). Then just call the `read` function on this `VideoCapture` object at any time to get the most recent frame in the stream!
 
 (If you're curious about the reasoning behind this, essentially OpenCV's defalt `VideoCapture.read` function gets the next frame in the stream based on whatever the last one you read is, rather than the most recent frame in the stream, such that if your code runs slower than the FPS of the stream, you will end up lagging behind more and more over time. I shamelessly stole code off of StackOverflow to fix this).
-
-There's also an [Emitter](emitter.py) class, used for controlling the emitter, which is what you will use to "ping" the requested vision targets. Using it is pretty simple; you just have to create an emitter object somewhere in your code, and then call the `.pulse()` function on that object whenever you want to send out a pulse.
 
 ## How to Run
 
