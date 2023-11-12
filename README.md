@@ -31,13 +31,15 @@ This starter code comes with three modules:
 
 Further modules (for catching and handling these target messages, image processing, sending messages to the other modules based on that image processing, etc) will be designed and implemented by you! For more information on how to create modules, see the [official Robomodules documentation](https://github.com/HarvardURC/robomodules#mocksensormodulepy), as well as the [blank module template](blank_module.py) provided in this code!
 
+## Camera Reading
+
+This starter code also contains two classes for use in reading from the camera-- [RemoteCameraFeed](remote_camera_reader.py) and [LocalCameraFeed](local_camera_reader.py). The former should be run on your computer, to read frames from a camera feed being streamed from the Pi. This is helpful when developing vision code (assuming you don't want to plug a monitor into the Pi every time), and can also be used in competition if you decide to run your vision code on your personal laptop instead of on the Pi. To start a tcp stream from the Pi, you can use the command `libcamera-vid -t 0 --inline --listen -n --width 640 --height 480 -o tcp://0.0.0.0:9000`.
+
+The `LocalCameraFeed` class has the same interface as the remote one (essentially just a constructor & a `read` function to get the next frame), but is meant to be run on the Pi for use in reading from the camera locally. The class are designed such that you can easily write your vision code using a remote camera feed, and then simply switch out the constructor in order to make it run locally on the Pi.
+
 ## Other Files
 
 `run_modules.sh` can be used to quickly start up the server, motor module, and laser module. You can run it with `./run_modules.sh`. If you get a `Permission denied` error, try running `chmod +x run_modules.sh`, and then running the file again. (If you're interested in what the `chmod` command means, you can read more about Linux file permissions [here](https://linuxize.com/post/chmod-command-in-linux/)).
-
-This starter code includes a definiton for the [CameraFeed](camera_reader.py) class, which can be used to read the most recent frame from either a remote or local camera feed. To use it in your code, simply create a `CameraFeed` object with the `source` parameter set to either a URI of a remote camera stream (such as `'tcp://192.168.0.102:9000'`), or the index of a local camera (probably `0`, unless your Pi has multiple cameras hoooked up to it). Then just call the `read` function on this `VideoCapture` object at any time to get the most recent frame in the stream!
-
-(If you're curious about the reasoning behind this, essentially OpenCV's defalt `VideoCapture.read` function gets the next frame in the stream based on whatever the last one you read is, rather than the most recent frame in the stream, such that if your code runs slower than the FPS of the stream, you will end up lagging behind more and more over time. I shamelessly stole code off of StackOverflow to fix this).
 
 ## How to Run
 
