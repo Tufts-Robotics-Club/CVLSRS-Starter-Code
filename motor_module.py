@@ -28,6 +28,7 @@ TICKS_PER_ROTATION = 979
 TICKS_PER_DEGREE = TICKS_PER_ROTATION / 360
 
 TILT_LIMITS = (-0.65, 0.65)
+PID_CONSTANTS = (0.11, 0, 0.0011)
 
 SERVO_PIN = 4
 DC_PINS = (17, 18)
@@ -46,7 +47,7 @@ class MotorModule(rm.ProtoModule):
         self.encoder = RotaryEncoder(*ENCODER_PINS, max_steps=0)
 
         # setting up PID controller
-        self.pid = PID(0.025, 0, 0)
+        self.pid = PID(*PID_CONSTANTS)
         self.pid.sample_time = 0.01
         self.pid.output_limits = (-1.0, 1.0)
         self.pid.setpoint = 0
@@ -72,6 +73,8 @@ class MotorModule(rm.ProtoModule):
         # picking rotation speed and direction based on PID controller
         current_pos = self.encoder.steps
         v = self.pid(current_pos)
+        if v != 0:
+            print(current_pos, self.pid.setpoint, v)
 
         if v > 0:
             drive_func = self.rotation_motor.forward

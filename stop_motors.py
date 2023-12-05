@@ -7,4 +7,5 @@
 
 from gpiozero import PhaseEnableMotor
 
-PhaseEnableMotor(17, 8).stop()
+motor = PhaseEnableMotor(17, 18)
+motor.stop()
